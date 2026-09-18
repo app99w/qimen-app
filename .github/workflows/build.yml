@@ -1,25 +1,25 @@
-姓名: 构建安装包
-在……之上: [推]
-工作:
-建立:
-连续的：Ubuntu-最新
-步骤:
-      - uses: 操作/结帐@v4
-      - uses: 操作/设置-节点@v4
-和……一起:
-节点版本: 22
--用途：操作/设置-Java@v4
-和……一起:
-java版: 17
-分布: t鸸鹋苷
--姓名: 安装Android SDK
-uses: 一个ndroid-actions/setup-android@v3
--跑: npm安装
--跑: npm运行生成
--跑: npx帽添加安卓
--跑: npx cap sync android
--跑: CD android&&./gradlew汇编调试
--uses: 操作/上载工件@v4
-和……一起:
-姓名: 祁门阿普克
-路径: Android/app/build/outputs/apk/debug/app-debug.APK
+name: Build APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - run: npm install
+      - run: npm run build
+      - run: npx cap add android
+      - run: npx cap sync android
+      - run: cd android && ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qimen-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
