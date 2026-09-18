@@ -19,28 +19,17 @@ export function paipan(y: number, m: number, d: number, h: number, min: number) 
   const bazi = lunar.getEightChar();
   const baziStr = `${bazi.getYear()}年 ${bazi.getMonth()}月 ${bazi.getDay()}日 ${bazi.getTime()}时`;
   
-  // 【兼容性修复】使用更安全的方式获取当前节气，避免 getSolar 报错
-  const jq = lunar.getJieQiTable();
+  // 【终极兼容修复】彻底移除 getJieQiTable，改用最稳定的 getPrevJieQi
   let currentJq = '冬至';
-  let jqDateStr = '';
-  for (const k in jq) {
-    const jd = jq[k];
-    let solarStr = '';
-    try {
-      if (typeof jd.getSolar === 'function') solarStr = jd.getSolar().toYmdHms();
-      else if (jd.toYmdHms) solarStr = jd.toYmdHms();
-      else solarStr = jd.toString();
-    } catch (e) {
-      solarStr = jd.toString();
+  try {
+    const prevJq = lunar.getPrevJieQi();
+    if (prevJq && typeof prevJq.getName === 'function') {
+      currentJq = prevJq.getName();
     }
-    
-    if (solarStr && solarStr <= solar.toYmdHms()) {
-      if (!jqDateStr || solarStr > jqDateStr) {
-        jqDateStr = solarStr; currentJq = k;
-      }
-    }
+  } catch (e) {
+    // 如果获取节气失败，默认按冬至处理，保证程序不崩溃
   }
-  
+
   const isYang = YANG.includes(currentJq);
   const juList = JU_TABLE[currentJq] || [1,7,4];
   const dayGan = bazi.getDayGan();
