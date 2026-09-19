@@ -11,7 +11,7 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "lunar-javascript": "^1.6.12",
+    "bigfishmarquis-qimen": "^1.0.0",
     "@capacitor/core": "^6.1.0",
     "@capacitor/android": "^6.1.0"
   },
