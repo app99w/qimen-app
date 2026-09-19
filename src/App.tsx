@@ -3,13 +3,11 @@ import { paipan } from './qimen';
 import ChartGrid from './ChartGrid';
 
 export default function App() {
-  // 使用 datetime-local 需要的初始格式（T 连接）
   const [dt, setDt] = useState('2026-09-18T14:00');
   const [chart, setChart] = useState<any>(null);
 
   const handlePaipan = () => {
     try {
-      // 将 T 替换为空格，兼容原本的解析逻辑
       const cleanDt = dt.replace('T', ' ');
       const [d, t] = cleanDt.split(' ');
       const [y, m, day] = d.split('-').map(Number);
@@ -26,18 +24,36 @@ export default function App() {
 
   const handleCopy = () => {
     if (!chart) return;
-    const text = chart.palaces.map((p: any) =>
-      `[${p.name}] 天盘:${p.heavenStem} 地盘:${p.earthStem} ${p.star} ${p.door} ${p.god} ${p.marks.join('')}`
-    ).join('\n');
-    navigator.clipboard.writeText(text);
-    alert('已复制盘面');
+    
+    // 按九宫格布局顺序生成纯文本
+    const order = [4, 9, 2, 3, 5, 7, 8, 1, 6];
+    const lines: string[] = [];
+    
+    // 标题信息
+    lines.push(`奇门遁甲 · ${chart.ju}`);
+    lines.push(`四柱: ${chart.bazi}`);
+    lines.push('');
+    
+    // 逐宫输出
+    order.forEach(i => {
+      const p = chart.palaces.find((x: any) => x.index === i);
+      if (p) {
+        const marks = p.marks.length > 0 ? `【${p.marks.join(' ')}】` : '';
+        lines.push(`[${p.name}] 天盘:${p.heavenStem} 地盘:${p.earthStem} ${p.star} ${p.door} ${p.god} ${p.changsheng} ${marks}`);
+      } else if (i === 5) {
+        lines.push('[中5宫] 寄坤二宫');
+      }
+    });
+    
+    navigator.clipboard.writeText(lines.join('\n'));
+    alert('已复制盘面到剪贴板');
   };
 
   return (
-    <div style={{ padding: 12, fontFamily: 'sans-serif' }}>
+    <div style={{ padding: 12, fontFamily: 'sans-serif', maxWidth: 700, margin: '0 auto' }}>
       <h2 style={{ textAlign: 'center' }}>奇门</h2>
+      
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        {/* 这里改成了原生时间选择器 */}
         <input 
           type="datetime-local" 
           value={dt} 
@@ -46,12 +62,23 @@ export default function App() {
         />
         <button onClick={handlePaipan} style={{ padding: '8px 16px' }}>排盘</button>
       </div>
+
       {chart && (
         <>
-          <button onClick={handleCopy} style={{ marginBottom: 8 }}>复制盘面</button>
+          <button 
+            onClick={handleCopy} 
+            style={{ marginBottom: 8, padding: '6px 12px' }}
+          >
+            复制盘面
+          </button>
+          
           <div style={{ fontSize: 13, marginBottom: 8 }}>
-            四柱：{chart.bazi}　{chart.ju}
+            四柱：{chart.bazi}
           </div>
+          <div style={{ fontSize: 13, marginBottom: 12, fontWeight: 'bold' }}>
+            {chart.ju}
+          </div>
+          
           <ChartGrid chart={chart} />
         </>
       )}
