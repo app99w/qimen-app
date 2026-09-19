@@ -12,11 +12,8 @@ export default function App() {
       const [d, t] = cleanDt.split(' ');
       const [y, m, day] = d.split('-').map(Number);
       const [h, min] = t.split(':').map(Number);
-      
       if ([y, m, day, h, min].some(isNaN)) throw new Error('时间格式异常');
-      
-      const result = paipan(y, m, day, h, min);
-      setChart(result);
+      setChart(paipan(y, m, day, h, min));
     } catch (err: any) {
       alert('排盘失败：' + err.message);
     }
@@ -24,17 +21,12 @@ export default function App() {
 
   const handleCopy = () => {
     if (!chart) return;
-    
-    // 按九宫格布局顺序生成纯文本
     const order = [4, 9, 2, 3, 5, 7, 8, 1, 6];
-    const lines: string[] = [];
-    
-    // 标题信息
-    lines.push(`奇门遁甲 · ${chart.ju}`);
-    lines.push(`四柱: ${chart.bazi}`);
-    lines.push('');
-    
-    // 逐宫输出
+    const lines: string[] = [
+      `奇门遁甲 · ${chart.ju}`,
+      `四柱: ${chart.bazi}`,
+      ''
+    ];
     order.forEach(i => {
       const p = chart.palaces.find((x: any) => x.index === i);
       if (p) {
@@ -44,7 +36,6 @@ export default function App() {
         lines.push('[中5宫] 寄坤二宫');
       }
     });
-    
     navigator.clipboard.writeText(lines.join('\n'));
     alert('已复制盘面到剪贴板');
   };
@@ -52,33 +43,15 @@ export default function App() {
   return (
     <div style={{ padding: 12, fontFamily: 'sans-serif', maxWidth: 700, margin: '0 auto' }}>
       <h2 style={{ textAlign: 'center' }}>奇门</h2>
-      
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <input 
-          type="datetime-local" 
-          value={dt} 
-          onChange={e => setDt(e.target.value)}
-          style={{ flex: 1, padding: 8, fontSize: 16 }} 
-        />
+        <input type="datetime-local" value={dt} onChange={e => setDt(e.target.value)} style={{ flex: 1, padding: 8, fontSize: 16 }} />
         <button onClick={handlePaipan} style={{ padding: '8px 16px' }}>排盘</button>
       </div>
-
       {chart && (
         <>
-          <button 
-            onClick={handleCopy} 
-            style={{ marginBottom: 8, padding: '6px 12px' }}
-          >
-            复制盘面
-          </button>
-          
-          <div style={{ fontSize: 13, marginBottom: 8 }}>
-            四柱：{chart.bazi}
-          </div>
-          <div style={{ fontSize: 13, marginBottom: 12, fontWeight: 'bold' }}>
-            {chart.ju}
-          </div>
-          
+          <button onClick={handleCopy} style={{ marginBottom: 8, padding: '6px 12px' }}>复制盘面</button>
+          <div style={{ fontSize: 13, marginBottom: 8 }}>四柱：{chart.bazi}</div>
+          <div style={{ fontSize: 13, marginBottom: 12, fontWeight: 'bold' }}>{chart.ju}</div>
           <ChartGrid chart={chart} />
         </>
       )}
